@@ -1,8 +1,9 @@
-package com.example.examplemod;
+package net.blueyogurt.firstmod;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.Optional;  // <--- Add this line
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -14,7 +15,7 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 
 // An example config class. This is not required, but it's a good idea to have one to keep your config organized.
 // Demonstrates how to use Neo's config APIs
-@EventBusSubscriber(modid = ExampleMod.MODID, bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = FirstMod.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class Config
 {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
@@ -55,9 +56,11 @@ public class Config
         magicNumber = MAGIC_NUMBER.get();
         magicNumberIntroduction = MAGIC_NUMBER_INTRODUCTION.get();
 
-        // convert the list of strings into a set of items
         items = ITEM_STRINGS.get().stream()
-                .map(itemName -> BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemName)))
+                .map(itemName -> BuiltInRegistries.ITEM.get(ResourceLocation.parse(itemName)))  // returns Optional<Reference<Item>>
+                .filter(Optional::isPresent)  // keep only if present
+                .map(Optional::get)  // unwrap Optional<Reference<Item>> to Reference<Item>
+                .map(reference -> reference.value())  // get actual Item from Reference<Item>
                 .collect(Collectors.toSet());
     }
 }
